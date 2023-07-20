@@ -14,38 +14,45 @@
  * Иногда промисы от API будут приходить в состояние rejected, (прямо как и API в реальной жизни)
  * Ответ будет приходить в поле {result}
  */
- import Api from '../tools/api';
+import { allPass, compose } from 'ramda';
+import Api from '../tools/api';
 
- const api = new Api();
+const api = new Api();
 
- /**
-  * Я – пример, удали меня
-  */
- const wait = time => new Promise(resolve => {
-     setTimeout(resolve, time);
- })
+const converteToBinaryNumberSystem = number => new Promise((res) => {
+    api.get('https://api.tech/numbers/base', {from: 10, to: 2, number})
+    .then(res)
+    .catch(() => res(converteToBinaryNumberSystem(number)))
+}),
+ getAnimal = id => new Promise((res) => {
+    api.get(`https://animals.tech/${id}`, {})
+    .then(res)
+    .catch(() => res(getAnimal(id)))
+}),
+ isValid = n => {
+    const validLength = n => n.length > 2 && n.length < 10,
+     validNumber = n => !isNaN(Number(n)) && Number(n) >= 0
+    return allPass([
+        validLength,
+        validNumber
+    ])(n)
+}
 
- const processSequence = ({value, writeLog, handleSuccess, handleError}) => {
-     /**
-      * Я – пример, удали меня
-      */
-     writeLog(value);
+const processSequence = async ({value, writeLog, handleSuccess, handleError}) => {
+    if ( !isValid(value) ) return handleError('ValidationError')
 
-     api.get('https://api.tech/numbers/base', {from: 2, to: 10, number: '01011010101'}).then(({result}) => {
-         writeLog(result);
-     });
+        writeLog(Math.round(Number(value)))
+        const binaryValue = (await converteToBinaryNumberSystem(value)).result
 
-     wait(2500).then(() => {
-         writeLog('SecondLog')
-
-         return wait(1500);
-     }).then(() => {
-         writeLog('ThirdLog');
-
-         return wait(400);
-     }).then(() => {
-         handleSuccess('Done');
-     });
- }
+        writeLog(binaryValue)
+        writeLog(binaryValue.length)
+    compose(
+        writeLog,
+        Math.sqrt,
+        Number
+    )(binaryValue)
+    writeLog(value % 3)
+    handleSuccess((await getAnimal(value % 3)).result)
+}
 
 export default processSequence;

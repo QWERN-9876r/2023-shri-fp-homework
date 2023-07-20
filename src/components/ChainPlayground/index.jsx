@@ -20,7 +20,7 @@ const Log = ({text, status, time}) => {
             <span className={getLogClassName(status)}>{text}</span>
         </div>
     );
-} 
+}
 
 class ChainPlayground extends React.Component {
     constructor(props) {

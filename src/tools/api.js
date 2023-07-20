@@ -16,8 +16,8 @@ export default class Api {
 
     animalController = (id) => {
         const animals = ['cat', 'dog', 'bird', 'fish']
-        
-        return {result: animals[id] || 'zebra'}; 
+
+        return {result: animals[id] || 'zebra'};
     }
 
     get = curry((url, params) => {
@@ -63,11 +63,12 @@ export default class Api {
                         break;
                     case 'animals.tech':
                         const animalId = Number(pathname.slice(1))
+                        console.log(animalId);
                         
                         if (Number.isNaN(animalId)) {
                             reject('Не получается распарсить id животного');
                         }
-
+                        console.log('res');
                         resolve(this.animalController(animalId));
                         break;
                     default:
